@@ -8,7 +8,7 @@
 	<script src="js/libs/tween.min.js"></script>
 	<script src="js/renderers/CSS3DRenderer.js"></script>
 	<script src="js/controls/TrackballControls.js"></script>
-	<link href="https://fonts.googleapis.com/css?family=Raleway:300,400" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Raleway:300,600" rel="stylesheet">
 	<link href="//fonts.googleapis.com/css?family=Orbitron" rel="stylesheet">
 	<style>
 		html,
@@ -36,10 +36,10 @@
 			padding: 10px;
 			font-family: Raleway;
 			font-size: 13px;
-			font-weight: 300;
+			font-weight: 600;
 			z-index: 1;
 			bottom: 0;
-			background: rgba(255, 255, 255, 0.5);
+			background: rgba(255, 255, 255, 0.8);
 			padding-left: 20px;
 		}
 
@@ -52,7 +52,7 @@
 			text-align: center;
 			cursor: default;
 			font-size: 60px;
-			font-weight: 400;
+			font-weight: 600;
 			font-family: Raleway;
 			color: rgba(255, 255, 255, 0.75);
 		}
@@ -111,9 +111,9 @@
 				.range([-6000,0]);
 			var rfreq2x = d3.scaleLinear().domain([rfreqMin, rfreqMax])
 				.range([-1, 1]);
-			var z2x = d3.scaleLinear().domain([12000, 0])
+			var z2x = d3.scaleLinear().domain([6000, 0])
 				.range([0, 1500]);
-			var z2y = d3.scaleLinear().domain([12000, 0])
+			var z2y = d3.scaleLinear().domain([6000, 0])
 				.range([0, 1500]);
 
 			var camera, scene, renderer;
@@ -123,10 +123,10 @@
 			animate();
 
 			function init() {
-				camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 1, 10000);
+				camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 1, 10000);
 				camera.position.x = -500;
 				camera.position.y = -250;
-				camera.position.z = 12000;
+				camera.position.z = 4000;
 				camera.lookAt({x:0,y:0,z:-1000});
 				scene = new THREE.Scene();
 
