@@ -17,7 +17,7 @@
 		}
 
 		body {
-			background-color: #000;
+			background-color: #fff;
 			margin: 0;
 			font-family: Helvetica, sans-serif;
 			;
@@ -32,14 +32,14 @@
 		#info {
 			position: absolute;
 			width: 100%;
-			color: #d5d5d5;
+			color: #212d5b;
 			padding: 10px;
 			font-family: Raleway;
 			font-size: 13px;
 			font-weight: 300;
 			z-index: 1;
 			bottom: 0;
-			background: rgba(0, 0, 0, 0.5);
+			background: rgba(255, 255, 255, 0.5);
 			padding-left: 20px;
 		}
 
@@ -101,20 +101,20 @@
 				return d.rfreqc
 			});
 			var nfreq2alpha = d3.scaleLinear().domain([0, nfreqMax])
-				.range([0.25, 0.75]);
+				.range([0.65, 0.75]);
 			var rfreq2g = d3.scaleLinear().domain([rfreqcMin, rfreqcMax])
 				.range([120, 0]).interpolate(d3.interpolateRound);
 			var rfreq2b = d3.scaleLinear().domain([rfreqcMin, rfreqcMax])
 				.range([0, 120]).interpolate(d3.interpolateRound);
 
 			var nfreq2z = d3.scaleLinear().domain([0, nfreqMax])
-				.range([-8000, -2000]);
+				.range([-6000,0]);
 			var rfreq2x = d3.scaleLinear().domain([rfreqMin, rfreqMax])
 				.range([-1, 1]);
-			var z2x = d3.scaleLinear().domain([3000, 0])
-				.range([0, 600]);
-			var z2y = d3.scaleLinear().domain([3000, 0])
-				.range([0, 800]);
+			var z2x = d3.scaleLinear().domain([12000, 0])
+				.range([0, 1500]);
+			var z2y = d3.scaleLinear().domain([12000, 0])
+				.range([0, 1500]);
 
 			var camera, scene, renderer;
 			var controls;
@@ -125,16 +125,19 @@
 			function init() {
 				var fov = (360 / 2 / 3.14) * Math.asin(Math.sin(40 / 360 * 2.0 * 3.14) / window.innerWidth * window.innerHeight);
 				camera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, 1, 10000);
-				camera.position.z = 3000;
+				camera.position.x = -500;
+				camera.position.y = -250;
+				camera.position.z = 12000;
+				camera.lookAt({x:0,y:0,z:-1000});
 				scene = new THREE.Scene();
 
 				// table
 				for (var i = 0; i < 200; i++) {
 					var keyword = document.createElement('div');
 					keyword.className = 'keyword';
-					var rgb = '30,' + rfreq2g(data[i].rfreqc) + ',' + rfreq2b(data[i].rfreqc);
+					var rgb = '0,' + rfreq2g(data[i].rfreqc) + ',' + rfreq2b(data[i].rfreqc);
 					keyword.style.backgroundColor = 'rgba(' + rgb + ',' + nfreq2alpha(data[i].nfreq) + ')';
-					keyword.style.boxShadow = '0px 0px 12px rgba(' + rgb + ', 0.5)';
+					keyword.style.boxShadow = '0px 0px 12px rgba(255,255,255, 0.5)';
 					keyword.style.border = '1px solid rgba(64,' + rfreq2g(data[i].rfreqc) + ',' + rfreq2b(data[i].rfreqc) + ', 0.55)';
 					keyword.textContent = data[i].text;
 					keyword.style.textShadow = " 0 0 10px rgba(" + rgb + ", 0.95)";
@@ -168,12 +171,12 @@
 							var phi = Math.acos(-1 + (2 * idx[i]) / l);
 							var theta = Math.sqrt(l * Math.PI) * phi;
 							var object = new THREE.Object3D();
-							object.position.x = 1300 * Math.cos(theta) * Math.sin(phi);
-							object.position.y = 1000 * Math.sin(theta) * Math.sin(phi);
-							object.position.z = 1300 * Math.cos(phi);
+							object.position.x = 1500 * Math.cos(theta) * Math.sin(phi);
+							object.position.y = 1200 * Math.sin(theta) * Math.sin(phi);
+							object.position.z = 1500 * Math.cos(phi);
 							vector.copy(object.position).multiplyScalar(2);
 							object.lookAt(vector);
-							object.position.z -= 6000;
+							object.position.z -=2000;
 							targets.push(object);
 						}
 						return targets;
@@ -193,9 +196,9 @@
 				document.getElementById('container').appendChild(renderer.domElement);
 				//
 				controls = new THREE.TrackballControls(camera, renderer.domElement);
-				controls.rotateSpeed = 0.5;
-				controls.minDistance = 500;
-				controls.maxDistance = 6000;
+				controls.rotateSpeed = 3;
+				controls.minDistance = 3000;
+				controls.maxDistance = 20000;
 				controls.addEventListener('change', render);
 				transform(formation[0](), 2000);
 				//
