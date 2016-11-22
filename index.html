@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8" />
+	<script src="https://d3js.org/d3.v4.min.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/three.js/r82/three.js"></script>
+	<script src="js/libs/tween.min.js"></script>
+	<script src="js/renderers/CSS3DRenderer.js"></script>
+	<script src="js/controls/TrackballControls.js"></script>
+	<link href="https://fonts.googleapis.com/css?family=Raleway:300,400" rel="stylesheet">
+	<link href="//fonts.googleapis.com/css?family=Orbitron" rel="stylesheet">
+	<style>
+		html,
+		body {
+			height: 100%;
+		}
+
+		body {
+			background-color: #080811;
+			margin: 0;
+			font-family: Helvetica, sans-serif;
+			;
+			overflow: hidden;
+		}
+
+		a {
+			color: inherit;
+			font-weight: inherit;
+		}
+
+		#info {
+			position: absolute;
+			width: 100%;
+			color: #d5d5d5;
+			padding: 5px;
+			font-family: Raleway;
+			font-size: 13px;
+			font-weight:300;
+			text-align: left;
+			z-index: 1;
+			bottom:10px;
+			padding-left:20px;
+		}
+
+		.keyword {
+			position: relative;
+			min-width: 240px;
+			max-width: 320px;
+			padding: 40px;
+			height: auto;
+			text-align: center;
+			cursor: default;
+			font-size: 60px;
+			font-weight: 400;
+			font-family: Raleway;
+			color: rgba(255, 255, 255, 0.75);
+		}
+
+	</style>
+</head>
+
+<body>
+
+	<div id="container"></div>
+	<div id="info">
+		Visualization of popular keywords in Machine Learning (green) &plusmn; Control (blue)<br>
+		<a href="https://github.com/maruta/dml-3dwordcloud">src</a> / <a href="http://maruta.github.io/dml-3dwordcloud/">full screen</a>
+	</div>
+
+	<script>
+		var keywords;
+		d3.csv('count.csv').row(function(d) {
+			return {
+				text: d.word,
+				nfreq: parseFloat(d.nfreq), //頻出カウントを文字サイズに反映
+				rfreq: parseFloat(d.rfreq)
+			}
+		}).get(function(error, data) {
+			data = data.splice(0, 200);
+			data.sort(function(a, b) {
+				return +a.rfreq - +b.rfreq;
+			});
+			data.map(function(v, i) {
+				v.rfreqc = Math.sign(v.rfreq) * Math.pow(Math.abs(v.rfreq), 2.5);
+				v.rfreq = i;
+				return v;
+			});
+			var nfreqMax = d3.max(data, function(d) {
+				return d.nfreq
+			});
+			var rfreqMax = d3.max(data, function(d) {
+				return d.rfreq
+			});
+			var rfreqMin = d3.min(data, function(d) {
+				return d.rfreq
+			});
+			var rfreqcMax = d3.max(data, function(d) {
+				return d.rfreqc
+			});
+			var rfreqcMin = d3.min(data, function(d) {
+				return d.rfreqc
+			});
+			var nfreq2alpha = d3.scaleLinear().domain([0, nfreqMax])
+				.range([0.25, 0.75]);
+			var rfreq2g = d3.scaleLinear().domain([rfreqcMin, rfreqcMax])
+				.range([120, 0]).interpolate(d3.interpolateRound);
+			var rfreq2b = d3.scaleLinear().domain([rfreqcMin, rfreqcMax])
+				.range([0, 120]).interpolate(d3.interpolateRound);
+
+			var nfreq2z = d3.scaleLinear().domain([0, nfreqMax])
+				.range([-8000, -2000]);
+			var rfreq2x = d3.scaleLinear().domain([rfreqMin, rfreqMax])
+				.range([-1, 1]);
+			var z2x = d3.scaleLinear().domain([3000, 0])
+				.range([0, 600]);
+			var z2y = d3.scaleLinear().domain([3000, 0])
+				.range([0, 800]);
+
+			var camera, scene, renderer;
+			var controls;
+			var objects = [];
+			init();
+			animate();
+
+			function init() {
+				camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 1, 10000);
+				camera.position.z = 3000;
+				scene = new THREE.Scene();
+
+				// table
+				for (var i = 0; i < 200; i++) {
+					var keyword = document.createElement('div');
+					keyword.className = 'keyword';
+					var rgb = '30,' + rfreq2g(data[i].rfreqc) + ',' + rfreq2b(data[i].rfreqc);
+					keyword.style.backgroundColor = 'rgba(' + rgb + ',' + nfreq2alpha(data[i].nfreq) + ')';
+					keyword.style.boxShadow = '0px 0px 12px rgba(' + rgb + ', 0.5)';
+					keyword.style.border = '1px solid rgba(64,' + rfreq2g(data[i].rfreqc) + ',' + rfreq2b(data[i].rfreqc) + ', 0.55)';
+					keyword.textContent = data[i].text;
+					keyword.style.textShadow = " 0 0 10px rgba(" + rgb + ", 0.95)";
+					var object = new THREE.CSS3DObject(keyword);
+					object.position.x = Math.random() * 4000 - 2000;
+					object.position.y = Math.random() * 4000 - 2000;
+					object.position.z = Math.random() * 4000 - 2000;
+					scene.add(object);
+					objects.push(object);
+				}
+				var formation = [
+					// organized
+					function() {
+						var targets = [];
+						for (var i = 0; i < 200; i++) {
+							var object = new THREE.Object3D();
+							object.position.z = nfreq2z(data[i].nfreq);
+							object.position.x = z2x(object.position.z) * rfreq2x(data[i].rfreq);
+							object.position.y = z2y(object.position.z) * (Math.random() - 0.5);
+							targets.push(object);
+						}
+						return (targets);
+					},
+					// random sphere
+					function() {
+						var targets = [];
+						var vector = new THREE.Vector3();
+						var idx =d3.range(0,objects.length);
+						d3.shuffle(idx);
+						for (var i = 0, l = objects.length; i < l; i++) {
+							var phi = Math.acos(-1 + (2 * idx[i]) / l);
+							var theta = Math.sqrt(l * Math.PI) * phi;
+							var object = new THREE.Object3D();
+							object.position.x = 1300 * Math.cos(theta) * Math.sin(phi);
+							object.position.y = 1000 * Math.sin(theta) * Math.sin(phi);
+							object.position.z = 1300 * Math.cos(phi);
+							vector.copy(object.position).multiplyScalar(2);
+							object.lookAt(vector);
+							object.position.z -= 6000;
+							targets.push(object);
+						}
+						return targets;
+					}
+				];
+				var phase = 1;
+
+				setInterval(function() {
+					transform(formation[phase](), 2000);
+					phase = (phase + 1) % 2;
+				}, 6000)
+
+				//
+				renderer = new THREE.CSS3DRenderer();
+				renderer.setSize(window.innerWidth, window.innerHeight);
+				renderer.domElement.style.position = 'absolute';
+				document.getElementById('container').appendChild(renderer.domElement);
+				//
+				controls = new THREE.TrackballControls(camera, renderer.domElement);
+				controls.rotateSpeed = 0.5;
+				controls.minDistance = 500;
+				controls.maxDistance = 6000;
+				controls.addEventListener('change', render);
+				transform(formation[0](), 2000);
+				//
+				window.addEventListener('resize', onWindowResize, false);
+			}
+
+			function transform(targets, duration) {
+				TWEEN.removeAll();
+				for (var i = 0; i < objects.length; i++) {
+					var object = objects[i];
+					var target = targets[i];
+					new TWEEN.Tween(object.position)
+						.to({
+							x: target.position.x,
+							y: target.position.y,
+							z: target.position.z
+						}, Math.random() * duration + duration)
+						.easing(TWEEN.Easing.Exponential.InOut)
+						.start();
+					new TWEEN.Tween(object.rotation)
+						.to({
+							x: target.rotation.x,
+							y: target.rotation.y,
+							z: target.rotation.z
+						}, Math.random() * duration + duration)
+						.easing(TWEEN.Easing.Exponential.InOut)
+						.start();
+				}
+				new TWEEN.Tween(this)
+					.to({}, duration * 2)
+					.onUpdate(render)
+					.start();
+			}
+
+			function onWindowResize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize(window.innerWidth, window.innerHeight);
+				render();
+			}
+
+			function animate() {
+				requestAnimationFrame(animate);
+				TWEEN.update();
+				controls.update();
+			}
+
+			function render() {
+				renderer.render(scene, camera);
+			}
+		});
+	</script>
+</body>
+
+</html>
