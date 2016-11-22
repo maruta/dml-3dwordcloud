@@ -41,6 +41,12 @@
 			padding-left: 20px;
 		}
 
+		@media screen and (max-width: 768px) {
+			#info {
+				font-size: 8px;
+			}
+		}
+
 		.keyword {
 			position: relative;
 			min-width: 240px;
@@ -106,7 +112,7 @@
 				.range([0, 120]).interpolate(d3.interpolateRound);
 
 			var nfreq2z = d3.scaleLinear().domain([0, nfreqMax])
-				.range([-3000,0]);
+				.range([-3000, 0]);
 			var rfreq2x = d3.scaleLinear().domain([rfreqMin, rfreqMax])
 				.range([-1, 1]);
 			var z2x = d3.scaleLinear().domain([3000, 0])
@@ -121,7 +127,7 @@
 			animate();
 
 			function init() {
-				camera = new THREE.PerspectiveCamera(32, window.innerWidth / window.innerHeight, 1, 10000);
+				camera = new THREE.PerspectiveCamera(33, window.innerWidth / window.innerHeight, 1, 10000);
 				camera.position.x = 0;
 				camera.position.y = 0;
 				camera.position.z = 3000;
@@ -172,7 +178,7 @@
 							object.position.z = 1500 * Math.cos(phi);
 							vector.copy(object.position).multiplyScalar(2);
 							object.lookAt(vector);
-							object.position.z -=2000;
+							object.position.z -= 2000;
 							targets.push(object);
 						}
 						return targets;
