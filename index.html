@@ -131,7 +131,7 @@
 				scene = new THREE.Scene();
 
 				// table
-				for (var i = 0; i < 200; i++) {
+				for (var i = 0; i < data.length; i++) {
 					var keyword = document.createElement('div');
 					keyword.className = 'keyword';
 					var rgb = '0,' + rfreq2g(data[i].rfreqc) + ',' + rfreq2b(data[i].rfreqc);
@@ -151,7 +151,7 @@
 					// organized
 					function() {
 						var targets = [];
-						for (var i = 0; i < 200; i++) {
+						for (var i = 0; i < data.length; i++) {
 							var object = new THREE.Object3D();
 							object.position.z = nfreq2z(data[i].nfreq);
 							object.position.x = z2x(object.position.z) * rfreq2x(data[i].rfreq);
