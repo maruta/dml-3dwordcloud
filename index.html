@@ -123,8 +123,7 @@
 			animate();
 
 			function init() {
-				var fov = (360 / 2 / 3.14) * Math.asin(Math.sin(30 / 360 * 2.0 * 3.14) / window.innerWidth * window.innerHeight);
-				camera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, 1, 10000);
+				camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 1, 10000);
 				camera.position.x = -500;
 				camera.position.y = -250;
 				camera.position.z = 12000;
@@ -234,7 +233,6 @@
 			}
 
 			function onWindowResize() {
-				camera.fov = (360 / 2 / 3.14) * Math.asin(Math.sin(30 / 360 * 2.0 * 3.14) / window.innerWidth * window.innerHeight);
 				camera.aspect = window.innerWidth / window.innerHeight;
 				camera.updateProjectionMatrix();
 				renderer.setSize(window.innerWidth, window.innerHeight);
