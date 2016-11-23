@@ -89,25 +89,31 @@
 				v.rfreq = i;
 				return v;
 			});
-			var nfreqRng = d3.extent(data, function(d) {
+			var nfreqMax = d3.max(data, function(d) {
 				return d.nfreq
 			});
-			var rfreqRng = d3.extent(data, function(d) {
+			var rfreqMax = d3.max(data, function(d) {
 				return d.rfreq
 			});
-			var rfreqcRng = d3.extent(data, function(d) {
+			var rfreqMin = d3.min(data, function(d) {
+				return d.rfreq
+			});
+			var rfreqcMax = d3.max(data, function(d) {
 				return d.rfreqc
 			});
-			var nfreq2alpha = d3.scaleLinear().domain(nfreqRng)
+			var rfreqcMin = d3.min(data, function(d) {
+				return d.rfreqc
+			});
+			var nfreq2alpha = d3.scaleLinear().domain([0, nfreqMax])
 				.range([0.65, 0.75]);
-			var rfreq2g = d3.scaleLinear().domain(rfreqcRng)
+			var rfreq2g = d3.scaleLinear().domain([rfreqcMin, rfreqcMax])
 				.range([120, 0]).interpolate(d3.interpolateRound);
-			var rfreq2b = d3.scaleLinear().domain(rfreqcRng)
+			var rfreq2b = d3.scaleLinear().domain([rfreqcMin, rfreqcMax])
 				.range([0, 120]).interpolate(d3.interpolateRound);
 
-			var nfreq2z = d3.scaleLog().domain(nfreqRng)
+			var nfreq2z = d3.scaleLinear().domain([0, nfreqMax])
 				.range([-3000, 0]);
-			var rfreq2x = d3.scaleLinear().domain(rfreqRng)
+			var rfreq2x = d3.scaleLinear().domain([rfreqMin, rfreqMax])
 				.range([-1, 1]);
 			var z2x = d3.scaleLinear().domain([3000, 0])
 				.range([0, 1500]);
