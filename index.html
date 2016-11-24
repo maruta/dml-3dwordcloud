@@ -198,6 +198,7 @@
 				controls.maxDistance = 20000;
 				controls.target = new THREE.Vector3(-225,-160,-1935);
 				controls.addEventListener('change', render);
+				controls.update();
 				var phase = 0,duration=[2000,500],start_next=[10000,1000];
 				function repeat_transform() {
 					transform(formation[phase](), duration[phase]);
