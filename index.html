@@ -42,7 +42,7 @@
 
 		@media screen and (max-width: 768px) {
 			#info {
-				display:none;
+				display: none;
 				font-size: 8px;
 			}
 		}
@@ -130,7 +130,7 @@
 				camera.position.x = -1418;
 				camera.position.y = -2029;
 				camera.position.z = 3195;
-
+				camera.lookAt(new THREE.Vector3(-225, -160, -1935));
 				scene = new THREE.Scene();
 
 				// table
@@ -196,10 +196,13 @@
 				controls.rotateSpeed = 2;
 				controls.minDistance = 3000;
 				controls.maxDistance = 20000;
-				controls.target = new THREE.Vector3(-225,-160,-1935);
+				controls.target = new THREE.Vector3(-225, -160, -1935);
 				controls.addEventListener('change', render);
 				controls.update();
-				var phase = 0,duration=[2000,500],start_next=[10000,1000];
+				var phase = 0,
+					duration = [2000, 500],
+					start_next = [10000, 1000];
+
 				function repeat_transform() {
 					transform(formation[phase](), duration[phase]);
 					setTimeout(repeat_transform, start_next[phase]);
@@ -207,7 +210,7 @@
 				}
 
 				//repeat_transform();
-				transform(formation[0](),3000);
+				transform(formation[0](), 3000);
 				//
 				window.addEventListener('resize', onWindowResize, false);
 			}
