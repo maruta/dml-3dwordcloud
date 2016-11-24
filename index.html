@@ -8,8 +8,7 @@
 	<script src="js/libs/tween.min.js"></script>
 	<script src="js/renderers/CSS3DRenderer.js"></script>
 	<script src="js/controls/TrackballControls.js"></script>
-	<link href="https://fonts.googleapis.com/css?family=Raleway:300,600" rel="stylesheet">
-	<link href="//fonts.googleapis.com/css?family=Orbitron" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Raleway:600" rel="stylesheet">
 	<style>
 		html,
 		body {
@@ -52,7 +51,6 @@
 			min-width: 240px;
 			max-width: 360px;
 			padding: 40px;
-			height: auto;
 			text-align: center;
 			cursor: default;
 			font-size: 60px;
@@ -76,7 +74,7 @@
 		d3.csv('count.csv').row(function(d) {
 			return {
 				text: d.word,
-				nfreq: parseFloat(d.nfreq), //頻出カウントを文字サイズに反映
+				nfreq: parseFloat(d.nfreq),
 				rfreq: parseFloat(d.rfreq)
 			}
 		}).get(function(error, data) {
@@ -89,7 +87,7 @@
 				v.rfreq = i;
 				return v;
 			});
-			var nfreqMax = d3.max(data, function(d) {
+			var nfreqExt = d3.extent(data, function(d) {
 				return d.nfreq
 			});
 			var rfreqMax = d3.max(data, function(d) {
@@ -104,14 +102,14 @@
 			var rfreqcMin = d3.min(data, function(d) {
 				return d.rfreqc
 			});
-			var nfreq2alpha = d3.scaleLinear().domain([0, nfreqMax])
+			var nfreq2alpha = d3.scaleLinear().domain(nfreqExt)
 				.range([0.65, 0.75]);
 			var rfreq2g = d3.scaleLinear().domain([rfreqcMin, rfreqcMax])
 				.range([120, 0]).interpolate(d3.interpolateRound);
 			var rfreq2b = d3.scaleLinear().domain([rfreqcMin, rfreqcMax])
 				.range([0, 120]).interpolate(d3.interpolateRound);
 
-			var nfreq2z = d3.scaleLinear().domain([0, nfreqMax])
+			var nfreq2z = d3.scaleLog().domain(nfreqExt)
 				.range([-3000, 0]);
 			var rfreq2x = d3.scaleLinear().domain([rfreqMin, rfreqMax])
 				.range([-1, 1]);
@@ -128,9 +126,10 @@
 
 			function init() {
 				camera = new THREE.PerspectiveCamera(33, window.innerWidth / window.innerHeight, 1, 10000);
-				camera.position.x = 0;
-				camera.position.y = 0;
-				camera.position.z = 3000;
+				camera.position.x = -1418;
+				camera.position.y = -2029;
+				camera.position.z = 3195;
+
 				scene = new THREE.Scene();
 
 				// table
@@ -184,12 +183,7 @@
 						return targets;
 					}
 				];
-				var phase = 1;
 
-				setInterval(function() {
-					transform(formation[phase](), 2000);
-					phase = (phase + 1) % 2;
-				}, 6000)
 
 				//
 				renderer = new THREE.CSS3DRenderer();
@@ -201,8 +195,19 @@
 				controls.rotateSpeed = 2;
 				controls.minDistance = 3000;
 				controls.maxDistance = 20000;
+				controls.target = new THREE.Vector3(-225,-160,-1935);
 				controls.addEventListener('change', render);
-				transform(formation[0](), 2000);
+				var phase = 0,duration=[2000,500],start_next=[10000,1000];
+				function repeat_transform() {
+					transform(formation[phase](), duration[phase]);
+					setTimeout(repeat_transform, start_next[phase]);
+					phase = (phase + 1) % 2;
+				}
+
+				//repeat_transform();
+				setTimeout(function(){
+					transform(formation[0](),2000);
+				},1000);
 				//
 				window.addEventListener('resize', onWindowResize, false);
 			}
